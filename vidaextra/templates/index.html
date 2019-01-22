@@ -1,0 +1,18 @@
+<form action="/login" method="post">
+    <ul>
+        {% for noticia in noticias %}
+        <li>
+            <ul>
+                <li>
+                    <p>{{noticia.titulo}}</p>
+                </li>
+                <li>
+                    <p>{{noticia.resumen}}</p>
+                </li>
+                <li>
+                    <a href="{{noticia.link}}">Link</a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</form>

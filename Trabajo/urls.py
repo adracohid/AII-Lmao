@@ -15,7 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+import vidaextra.views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('login', vidaextra.views.login_view),
+    path('register', vidaextra.views.register_view), 
+    path('', vidaextra.views.index_view),
 ]

@@ -3,9 +3,10 @@ from django.http import HttpResponse, HttpResponseRedirect
 from vidaextra.forms import LoginForm, RegisterForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from vidaextra import scrapping
+from vidaextra import scrapping,scrapping3djuegos
 from vidaextra.models import Noticia, Puntuacion
 from vidaextra.recomendation import predice_dos_noticias
+from datetime import datetime
 # Create your views here.
 
 def login_view(request):
@@ -77,8 +78,8 @@ def index_view(request):
     array = []
     if(request.user.is_authenticated):
         extras = predice_dos_noticias(request.user.id)
-        array.append(extras[0])
-        array.append(extras[1])
+    array.append(extras[0])
+    array.append(extras[1])
     for i in range(10):
         array.append(noticias[i + offset])
         puntuada = False
@@ -100,8 +101,7 @@ def index_view(request):
 def puntua_noticia(request):
     punt = request.GET.get('puntuacion', 0)
     noticia = request.GET.get('noticia', 0)
-    if (not request.user.is_authenticated):
-        return HttpResponseRedirect("/")
+
     try:
         Puntuacion.objects.get(noticiaid = noticia, userid = request.user.id)
     except:
@@ -119,9 +119,23 @@ def cargarvidaextra(request):
         titulo=scrapping.extraer_titulo(e)
         resumen=scrapping.extraer_resumen(e)
         link=scrapping.extraer_link(e)
-        autor=scrapping.extraer_autor(e)
         fecha=scrapping.extraer_fecha(e)        
         noticia=Noticia(titulo=titulo,resumen=resumen,link=link,fecha=fecha)
         noticia.save()
     
+    return HttpResponse("Loaded")
+
+def cargar3djuegos(request):
+    paginas = scrapping3djuegos.seleccionar_paginas()
+    for pagina in paginas:
+        p = scrapping3djuegos.procesar_pagina(pagina)
+        l=p.find_all("div", class_=["nov_main_txt fftit"])
+        for e in l:
+            titulo=scrapping3djuegos.extraer_titulo(e)
+            resumen=scrapping3djuegos.extraer_resumen(e)
+            link=scrapping3djuegos.extraer_link(e)
+            f=scrapping3djuegos.extraer_fecha(e)
+            fecha = datetime.utcfromtimestamp(int(f)).strftime('%d/%m/%Y %H:%M:%S')
+        noticia=Noticia(titulo=titulo,resumen=resumen,link=link,fecha=fecha)
+        noticia.save()
     return HttpResponse("Loaded")

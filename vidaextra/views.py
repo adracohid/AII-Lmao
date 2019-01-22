@@ -3,7 +3,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from vidaextra.forms import LoginForm, RegisterForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from vidaextra.models import Noticia
+from vidaextra.models import Noticia, Puntuacion
+from vidaextra.recomendation import predice_dos_noticias
 # Create your views here.
 
 def login_view(request):
@@ -70,7 +71,38 @@ def register_view(request):
 def index_view(request):
     offset = request.GET.get('p', 0)
     noticias = Noticia.objects.all()
+    if(len(noticias) == 0):
+        return HttpResponse("Nothing to display")
     array = []
+    if(request.user.is_authenticated):
+        extras = predice_dos_noticias(request.user.id)
+    array.append(extras[0])
+    array.append(extras[1])
     for i in range(10):
-        array.append(noticias[i + offset])
+        puntuada = False
+        try:
+            Puntuacion.objects.get(noticiaid = noticias[i + offset].id, userid = request.user.id)
+            puntuada = True
+        except:
+            pass
+        dic = {
+            "titulo": noticias[i + offset].titulo,
+            "resumen": noticias[i + offset].resumen,
+            "link": noticias[i + offset].link,
+            "puntuada": puntuada,
+            "id": noticias[i + offset].id
+        }
+        array.append(dic)
     return render(request, 'index.html', {'noticias': array})
+
+def puntua_noticia(request):
+    punt = request.GET.get('puntuacion', 0)
+    noticia = request.GET.get('noticia', 0)
+
+    try:
+        Puntuacion.objects.get(noticiaid = noticia, userid = request.user.id)
+    except:
+        puntuacion = Puntuacion(puntuacion = punt, noticiaid = noticia, userid = request.user.id)
+        puntuacion.save()
+
+    return HttpResponseRedirect("/")

@@ -22,4 +22,5 @@ urlpatterns = [
     path('login', vidaextra.views.login_view),
     path('register', vidaextra.views.register_view), 
     path('', vidaextra.views.index_view),
+    path('rate', vidaextra.views.puntua_noticia)
 ]

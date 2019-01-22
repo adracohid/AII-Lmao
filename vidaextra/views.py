@@ -3,13 +3,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from vidaextra.forms import LoginForm, RegisterForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-<<<<<<< HEAD
-from vidaextra.models import Noticia
 from vidaextra import scrapping
-=======
 from vidaextra.models import Noticia, Puntuacion
 from vidaextra.recomendation import predice_dos_noticias
->>>>>>> 800b2f2cb9d15e12790bc0328770f21d496818c0
 # Create your views here.
 
 def login_view(request):
@@ -81,8 +77,8 @@ def index_view(request):
     array = []
     if(request.user.is_authenticated):
         extras = predice_dos_noticias(request.user.id)
-    array.append(extras[0])
-    array.append(extras[1])
+        array.append(extras[0])
+        array.append(extras[1])
     for i in range(10):
         array.append(noticias[i + offset])
         puntuada = False
@@ -104,7 +100,8 @@ def index_view(request):
 def puntua_noticia(request):
     punt = request.GET.get('puntuacion', 0)
     noticia = request.GET.get('noticia', 0)
-
+    if (not request.user.is_authenticated):
+        return HttpResponseRedirect("/")
     try:
         Puntuacion.objects.get(noticiaid = noticia, userid = request.user.id)
     except:

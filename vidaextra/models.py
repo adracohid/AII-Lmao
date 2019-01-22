@@ -7,8 +7,7 @@ class Noticia(models.Model):
     titulo=models.CharField(max_length=200)
     resumen=models.TextField()
     link=models.CharField(max_length=500)
-    fecha=models.DateField()
-    hora=models.TimeField()
+    fecha=models.CharField(max_length=50)
     def __str__(self):
         return self.titulo
 

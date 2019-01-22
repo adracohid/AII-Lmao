@@ -1,10 +1,51 @@
-{% if not user.is_authenticated %}
-<a href="login">Login</a>
-<a href="register">Register</a>
-{% endif %}
-{% if user.is_authenticated %}
-<a href="logout">Logout</a>
-<p>We selected some news that may interest you!</p>
+<html>
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <title>AII Noticias-Gaming</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</head>
+
+<!-- Nav bar-->
+<nav class="navbar navbar-expand-lg navbar navbar-dark bg-dark">
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+              <li class="nav-item">
+                <a class="navbar-brand" href="#">AII Noticias-Gaming</a>
+              </li>
+
+            {% if not user.is_authenticated %}
+              <li class="nav-item dropdown active">
+                <a class="nav-link dropdown-toggle"  href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Usuario
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <a class="dropdown-item" href="/login">Login</a>
+                  <a class="dropdown-item" href="/register">Registrarse</a>
+                </div>
+              </li>
+            </ul>
+        </div>
+    </nav>
+            {% endif %}
+            {% if user.is_authenticated %}
+            <li class="nav-item dropdown active">
+                <a class="nav-link dropdown-toggle"  href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Usuario
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <a class="dropdown-item" href="/logout">Cerrar sesión</a>
+                </div>
+              </li>
+        </ul>
+        </div>
+    </nav>
+
+
+<!-- Menú derecha -->
+<p>Hemos seleccionado algunas noticias que puede que te interesen...</p>
+
 {% for noticia in recomendadas %}
 <li>
     <ul>
@@ -17,9 +58,9 @@
         </li>
         <li>
             {% if noticia.puntuada %}
-                <p>Already rated</p>
+                <p>Ya has puntuado esta noticia</p>
             {% elif not user.is_authenticated %}
-                <a href="/login">Login to rate</a>
+                <a href="/login"> Identifícate para puntuar </a>
             {% else %}
                 <a href="rate?puntuacion=1&noticia={{ noticia.id }}">1</a>
                 <a href="rate?puntuacion=2&noticia={{ noticia.id }}">2</a>
@@ -47,9 +88,9 @@
                 </li>
                 <li>
                     {% if noticia.puntuada %}
-                        <p>Already rated</p>
+                        <p>Ya has puntuado esta noticia</p>
                     {% elif not user.is_authenticated %}
-                        <a href="/login">Login to rate</a>
+                        <a href="/login">Identifícate para puntuar</a>
                     {% else %}
                         <a href="rate?puntuacion=1&noticia={{ noticia.id }}">1</a>
                         <a href="rate?puntuacion=2&noticia={{ noticia.id }}">2</a>
@@ -62,9 +103,13 @@
         </li>
     {% endfor %}
     </ul>
+
+
+
 {% if pag > 0 %}
-<a href="index?p={{ prevpag }}">Previous</a>
+<a href="index?p={{ prevpag }}">Anterior</a>
 {% endif %}
 {% if nextpag is not None %}
-<a href="index?p={{ nextpag }}">Next</a>
+<a href="index?p={{ nextpag }}">Siguiente</a>
 {% endif %}
+</html>

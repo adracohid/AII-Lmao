@@ -33,7 +33,6 @@ for e in l:
     titulo=extraer_titulo(e)
     resumen=extraer_resumen(e)
     link=extraer_link(e)
-    comentarios=extraer_comentarios(e)
     autor=extraer_autor(e)
     fecha=extraer_fecha(e)
     hora=extraer_hora(e)

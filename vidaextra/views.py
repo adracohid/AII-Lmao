@@ -3,8 +3,13 @@ from django.http import HttpResponse, HttpResponseRedirect
 from vidaextra.forms import LoginForm, RegisterForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+<<<<<<< HEAD
+from vidaextra.models import Noticia
+from vidaextra import scrapping
+=======
 from vidaextra.models import Noticia, Puntuacion
 from vidaextra.recomendation import predice_dos_noticias
+>>>>>>> 800b2f2cb9d15e12790bc0328770f21d496818c0
 # Create your views here.
 
 def login_view(request):
@@ -79,6 +84,7 @@ def index_view(request):
     array.append(extras[0])
     array.append(extras[1])
     for i in range(10):
+        array.append(noticias[i + offset])
         puntuada = False
         try:
             Puntuacion.objects.get(noticiaid = noticias[i + offset].id, userid = request.user.id)
@@ -106,3 +112,19 @@ def puntua_noticia(request):
         puntuacion.save()
 
     return HttpResponseRedirect("/")
+
+
+def cargarvidaextra(request):
+    p=scrapping.procesar_pagina("https://www.vidaextra.com/")
+
+    l=p.find_all("div", class_=["abstract-content"])
+    for e in l:
+        titulo=scrapping.extraer_titulo(e)
+        resumen=scrapping.extraer_resumen(e)
+        link=scrapping.extraer_link(e)
+        autor=scrapping.extraer_autor(e)
+        fecha=scrapping.extraer_fecha(e)        
+        noticia=Noticia(titulo=titulo,resumen=resumen,link=link,fecha=fecha)
+        noticia.save()
+    
+    return HttpResponse("Loaded")

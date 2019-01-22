@@ -26,8 +26,6 @@ def extraer_fecha(e):
     return e.find(class_="hace")['data-time']
 
 
-
-
 paginas = seleccionar_paginas()
 for pagina in paginas:
     p = procesar_pagina(pagina)
@@ -38,5 +36,5 @@ for pagina in paginas:
         link=extraer_link(e)
         f=extraer_fecha(e)
         fecha = datetime.utcfromtimestamp(int(f)).strftime('%d/%m/%Y %H:%M:%S')
-        print('Titulo: '+titulo+ '\n Resumen: '+resumen+ '\n Link: '+link+ '\n Fecha: '+ fecha)
+        
     

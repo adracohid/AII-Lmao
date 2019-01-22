@@ -3,10 +3,11 @@ from django.http import HttpResponse, HttpResponseRedirect
 from vidaextra.forms import LoginForm, RegisterForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from vidaextra import scrapping
+from vidaextra import scrapping,scrapping3djuegos
 from vidaextra.models import Noticia, Puntuacion
 from vidaextra.recomendation import predice_dos_noticias
 import random
+from datetime import datetime
 # Create your views here.
 
 def login_view(request):
@@ -170,7 +171,6 @@ def haz_scraping(request):
         titulo=scrapping.extraer_titulo(e)
         resumen=scrapping.extraer_resumen(e)
         link=scrapping.extraer_link(e)
-        autor=scrapping.extraer_autor(e)
         fecha=scrapping.extraer_fecha(e)        
         noticia=Noticia(titulo=titulo,resumen=resumen,link=link,fecha=fecha)
         noticia.save()
@@ -186,4 +186,19 @@ def haz_scraping(request):
                 punt = Puntuacion(noticiaid = noticiaid, puntuacion = 5, userid = usuario.id)
                 punt.save()
 
+    return HttpResponse("Loaded")
+
+def cargar3djuegos(request):
+    paginas = scrapping3djuegos.seleccionar_paginas()
+    for pagina in paginas:
+        p = scrapping3djuegos.procesar_pagina(pagina)
+        l=p.find_all("div", class_=["nov_main_txt fftit"])
+        for e in l:
+            titulo=scrapping3djuegos.extraer_titulo(e)
+            resumen=scrapping3djuegos.extraer_resumen(e)
+            link=scrapping3djuegos.extraer_link(e)
+            f=scrapping3djuegos.extraer_fecha(e)
+            fecha = datetime.utcfromtimestamp(int(f)).strftime('%d/%m/%Y %H:%M:%S')
+        noticia=Noticia(titulo=titulo,resumen=resumen,link=link,fecha=fecha)
+        noticia.save()
     return HttpResponse("Loaded")

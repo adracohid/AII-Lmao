@@ -12,6 +12,17 @@
                 <li>
                     <a href="{{noticia.link}}">Link</a>
                 </li>
+                <li>
+                    {% if noticia.puntuada %}
+                    <p>Already rated</p>
+                    {% else %}
+                    <a href="puntua?puntuacion=1&noticia={{ noticia.id }}">1</a>
+                    <a href="puntua?puntuacion=2&noticia={{ noticia.id }}">2</a>
+                    <a href="puntua?puntuacion=3&noticia={{ noticia.id }}">3</a>
+                    <a href="puntua?puntuacion=4&noticia={{ noticia.id }}">4</a>
+                    <a href="puntua?puntuacion=5&noticia={{ noticia.id }}">5</a>
+                    {% endif %}
+                </li>
             </ul>
         </li>
     </ul>

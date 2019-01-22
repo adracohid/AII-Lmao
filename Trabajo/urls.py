@@ -23,4 +23,5 @@ urlpatterns = [
     path('register', vidaextra.views.register_view), 
     path('cargarvidaextra',vidaextra.views.cargarvidaextra),
     path('', vidaextra.views.index_view),
+    path('rate', vidaextra.views.puntua_noticia)
 ]

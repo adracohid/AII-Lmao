@@ -4,7 +4,7 @@ from .models import Noticia
 
 def procesar_pagina(d:str):
     fichero=urllib.request.urlopen(d)
-    documento=BeautifulSoup(fichero,"lxml")
+    documento=BeautifulSoup(fichero,"html.parser")
     return documento
 
 

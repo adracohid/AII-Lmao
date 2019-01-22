@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from vidaextra import scrapping
 from vidaextra.models import Noticia, Puntuacion
 from vidaextra.recomendation import predice_dos_noticias
+import random
 # Create your views here.
 
 def login_view(request):
@@ -27,7 +28,7 @@ def login_view(request):
 def logout_view(request):
     if (request.user.is_authenticated):
         logout(request)
-    return HttpResponseRedirect("/login")
+    return HttpResponseRedirect("/")
 
 def register_view(request):
     if (request.user.is_authenticated):
@@ -74,13 +75,48 @@ def index_view(request):
     noticias = Noticia.objects.all()
     if(len(noticias) == 0):
         return HttpResponse("Nothing to display")
+    offset = int(offset)
+    nextpag = offset + 10
+    prevpag = offset - 10
+    while(offset > len(noticias) - 10):
+        nextpag = None
+        offset = offset - 10
+    
     array = []
-    if(request.user.is_authenticated):
+    recomendadas = []
+    if(request.user.is_authenticated and len(Puntuacion.objects.all()) >= 5):
         extras = predice_dos_noticias(request.user.id)
-        array.append(extras[0])
-        array.append(extras[1])
+        puntuada1 = False
+        extra1 = Noticia.objects.get(id = extras[0][0])
+        extra2 = Noticia.objects.get(id = extras[1][0])
+        try:
+            Puntuacion.objects.get(noticiaid = extra1.id, userid = request.user.id)
+            puntuada1 = True
+        except:
+            pass
+        dic1 = {
+            "titulo": extra1.titulo,
+            "resumen": extra1.resumen,
+            "link": extra1.link,
+            "puntuada": puntuada1,
+            "id": extra1.id
+        }
+        puntuada2 = False
+        try:
+            Puntuacion.objects.get(noticiaid = extra2.id, userid = request.user.id)
+            puntuada2 = True
+        except:
+            pass
+        dic2 = {
+            "titulo": extra2.titulo,
+            "resumen": extra2.resumen,
+            "link": extra2.link,
+            "puntuada": puntuada2,
+            "id": extra2.id
+        }
+        recomendadas.append(dic1)
+        recomendadas.append(dic2)
     for i in range(10):
-        array.append(noticias[i + offset])
         puntuada = False
         try:
             Puntuacion.objects.get(noticiaid = noticias[i + offset].id, userid = request.user.id)
@@ -95,11 +131,16 @@ def index_view(request):
             "id": noticias[i + offset].id
         }
         array.append(dic)
-    return render(request, 'index.html', {'noticias': array})
+    return render(request, 'index.html', {'noticias': array,'recomendadas': recomendadas, 'pag': offset, 'prevpag': prevpag, 'nextpag': nextpag})
 
 def puntua_noticia(request):
-    punt = request.GET.get('puntuacion', 0)
+    punt = request.GET.get('puntuacion', 1)
     noticia = request.GET.get('noticia', 0)
+    punt = int(punt)
+    if(punt > 5):
+        punt = 5
+    if (punt < 1):
+        punt = 1
     if (not request.user.is_authenticated):
         return HttpResponseRedirect("/")
     try:
@@ -111,7 +152,17 @@ def puntua_noticia(request):
     return HttpResponseRedirect("/")
 
 
-def cargarvidaextra(request):
+def haz_scraping(request):
+    # Tira la BD
+    Noticia.objects.all().delete()
+    Puntuacion.objects.all().delete()
+    User.objects.all().delete()
+
+    # Crea usuarios de prueba
+    for i in range(10):
+        newuser = User.objects.create_user("test" + str(i), "test" + str(i)+"@gmail.com", "test" + str(i))
+        newuser.save()
+
     p=scrapping.procesar_pagina("https://www.vidaextra.com/")
 
     l=p.find_all("div", class_=["abstract-content"])
@@ -124,4 +175,15 @@ def cargarvidaextra(request):
         noticia=Noticia(titulo=titulo,resumen=resumen,link=link,fecha=fecha)
         noticia.save()
     
+    # Crea puntuaciones de prueba
+    for i in range(10):
+        usuario = User.objects.get(username="test"+str(i))
+        for j in range(5):
+            noticiaid = random.randint(1, len(Noticia.objects.all()) - 1)
+            try:
+                Puntuacion.objects.get(noticiaid = noticiaid, puntuacion = 5, userid = usuario.id)
+            except:
+                punt = Puntuacion(noticiaid = noticiaid, puntuacion = 5, userid = usuario.id)
+                punt.save()
+
     return HttpResponse("Loaded")

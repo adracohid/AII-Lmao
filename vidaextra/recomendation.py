@@ -8,7 +8,7 @@ def predice_dos_noticias(usuario):
     
     noticias2 = []  
     for noticia in noticias:
-        noticias2.append(noticia.noticiaid)
+        noticias2.append(noticia.id)
     
     puntuaciones2 = []
     for punt in puntuaciones:
@@ -81,39 +81,51 @@ def similaridad(u1, u2):
     # Calcula la similitud
     arriba = 0
     for comun in comunes:
-        a = Puntuacion.objects.get(user_id = u1, noticiaid = comun).puntuacion - media_1
-        b = Puntuacion.objects.get(user_id = u2, noticiaid = comun).puntuacion - media_2
+        a = Puntuacion.objects.get(userid = u1, noticiaid = comun).puntuacion - media_1
+        b = Puntuacion.objects.get(userid = u2, noticiaid = comun).puntuacion - media_2
         arriba = arriba + a*b
     
     abajo_1 = 0
     for comun in comunes:
-        c = Puntuacion.objects.get(user_id = u1, noticiaid = comun).puntuacion - media_1
+        c = Puntuacion.objects.get(userid = u1, noticiaid = comun).puntuacion - media_1
         c = c * c
         abajo_1 = abajo_1 + c
     abajo_1 = math.sqrt(abajo_1)
     
     abajo_2 = 0
     for comun in comunes:
-        c = Puntuacion.objects.get(user_id = u2, noticiaid = comun).puntuacion - media_2
+        c = Puntuacion.objects.get(userid = u2, noticiaid = comun).puntuacion - media_2
         c = c * c
         abajo_2 = abajo_2 + c
     abajo_2 = math.sqrt(abajo_2)
     
-    return arriba / (abajo_1 * abajo_2)
+    if (abajo_1 * abajo_2 > 0):
+        return arriba / (abajo_1 * abajo_2)
+    else:
+        return arriba
 
 def predice(usuario, noticia):
     media_usuario = puntuacion_media_usuario(usuario)
     
-    usuarios_bd = User.objects.all()
+    usuarios_bd1 = User.objects.all()
+    usuarios_bd = []
+    for i in usuarios_bd1:
+        usuarios_bd.append(i.id)
     
     arriba = 0
     abajo = 0
     for otro_usuario in usuarios_bd:
         a = similaridad(usuario, otro_usuario) 
         abajo = abajo + similaridad(usuario, otro_usuario)
-        a = a * (Puntuacion.objects.get(userid = otro_usuario, noticiaid = noticia) - puntuacion_media_usuario(otro_usuario))
+        try:
+            punt_uacion = Puntuacion.objects.get(userid = otro_usuario, noticiaid = noticia) - puntuacion_media_usuario(otro_usuario)
+        except:
+            continue
+        a = a * (punt_uacion - puntuacion_media_usuario(otro_usuario))
         arriba = arriba + a
         
+    if(abajo == 0):
+        abajo = 1
     return (arriba / abajo) + media_usuario
     
     
@@ -124,6 +136,9 @@ def puntuacion_media_usuario(usuario):
     media_usuario = 0
     for punt in puntuaciones_usuario:
         media_usuario = media_usuario + punt.puntuacion
-    media_usuario = media_usuario / len(puntuaciones_usuario)
+    if(len(puntuaciones_usuario) > 0):
+        media_usuario = media_usuario / len(puntuaciones_usuario)
+    else:
+        media_usuario = media_usuario / 1
 
     return media_usuario

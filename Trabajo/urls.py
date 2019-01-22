@@ -20,8 +20,10 @@ import vidaextra.views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('login', vidaextra.views.login_view),
+    path('logout', vidaextra.views.logout_view),
     path('register', vidaextra.views.register_view), 
-    path('cargarvidaextra',vidaextra.views.cargarvidaextra),
+    path('scraping',vidaextra.views.haz_scraping),
     path('', vidaextra.views.index_view),
+    path('index', vidaextra.views.index_view),
     path('rate', vidaextra.views.puntua_noticia)
 ]

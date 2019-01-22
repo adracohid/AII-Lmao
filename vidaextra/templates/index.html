@@ -1,11 +1,44 @@
-<form action="/login" method="post">
+{% if not user.is_authenticated %}
+<a href="login">Login</a>
+<a href="register">Register</a>
+{% endif %}
+{% if user.is_authenticated %}
+<a href="logout">Logout</a>
+<p>We selected some news that may interest you!</p>
+{% for noticia in recomendadas %}
+<li>
     <ul>
+    <p>{{noticia.titulo}}</p>
+        <li>
+            <p>{{noticia.resumen}}</p>
+        </li>
+        <li>
+            <a href="{{noticia.link}}">Link</a>
+        </li>
+        <li>
+            {% if noticia.puntuada %}
+                <p>Already rated</p>
+            {% elif not user.is_authenticated %}
+                <a href="/login">Login to rate</a>
+            {% else %}
+                <a href="rate?puntuacion=1&noticia={{ noticia.id }}">1</a>
+                <a href="rate?puntuacion=2&noticia={{ noticia.id }}">2</a>
+                <a href="rate?puntuacion=3&noticia={{ noticia.id }}">3</a>
+                <a href="rate?puntuacion=4&noticia={{ noticia.id }}">4</a>
+                <a href="rate?puntuacion=5&noticia={{ noticia.id }}">5</a>
+            {% endif %}
+        </li>
+    </ul>
+</li>
+{% endfor %}
+{% endif %}
+<br/>
+<br/>
+   <ul>
         {% for noticia in noticias %}
         <li>
             <ul>
-                <li>
-                    <p>{{noticia.titulo}}</p>
-                </li>
+            <p>{{noticia.titulo}}</p>
                 <li>
                     <p>{{noticia.resumen}}</p>
                 </li>
@@ -14,17 +47,24 @@
                 </li>
                 <li>
                     {% if noticia.puntuada %}
-                    <p>Already rated</p>
+                        <p>Already rated</p>
+                    {% elif not user.is_authenticated %}
+                        <a href="/login">Login to rate</a>
                     {% else %}
-                    <a href="rate?puntuacion=1&noticia={{ noticia.id }}">1</a>
-                    <a href="rate?puntuacion=2&noticia={{ noticia.id }}">2</a>
-                    <a href="rate?puntuacion=3&noticia={{ noticia.id }}">3</a>
-                    <a href="rate?puntuacion=4&noticia={{ noticia.id }}">4</a>
-                    <a href="rate?puntuacion=5&noticia={{ noticia.id }}">5</a>
+                        <a href="rate?puntuacion=1&noticia={{ noticia.id }}">1</a>
+                        <a href="rate?puntuacion=2&noticia={{ noticia.id }}">2</a>
+                        <a href="rate?puntuacion=3&noticia={{ noticia.id }}">3</a>
+                        <a href="rate?puntuacion=4&noticia={{ noticia.id }}">4</a>
+                        <a href="rate?puntuacion=5&noticia={{ noticia.id }}">5</a>
                     {% endif %}
                 </li>
             </ul>
         </li>
     {% endfor %}
     </ul>
-</form>
+{% if pag > 0 %}
+<a href="index?p={{ prevpag }}">Previous</a>
+{% endif %}
+{% if nextpag is not None %}
+<a href="index?p={{ nextpag }}">Next</a>
+{% endif %}

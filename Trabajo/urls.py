@@ -21,5 +21,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('login', vidaextra.views.login_view),
     path('register', vidaextra.views.register_view), 
+    path('cargarvidaextra',vidaextra.views.cargarvidaextra),
     path('', vidaextra.views.index_view),
 ]

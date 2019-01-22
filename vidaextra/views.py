@@ -4,6 +4,7 @@ from vidaextra.forms import LoginForm, RegisterForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from vidaextra.models import Noticia
+from vidaextra import scrapping
 # Create your views here.
 
 def login_view(request):
@@ -74,3 +75,18 @@ def index_view(request):
     for i in range(10):
         array.append(noticias[i + offset])
     return render(request, 'index.html', {'noticias': array})
+
+def cargarvidaextra(request):
+    p=scrapping.procesar_pagina("https://www.vidaextra.com/")
+
+    l=p.find_all("div", class_=["abstract-content"])
+    for e in l:
+        titulo=scrapping.extraer_titulo(e)
+        resumen=scrapping.extraer_resumen(e)
+        link=scrapping.extraer_link(e)
+        autor=scrapping.extraer_autor(e)
+        fecha=scrapping.extraer_fecha(e)        
+        noticia=Noticia(titulo=titulo,resumen=resumen,link=link,fecha=fecha)
+        noticia.save()
+    
+    return HttpResponse("Loaded")

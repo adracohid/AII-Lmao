@@ -1,20 +1,43 @@
 <html>
 <head>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    
     <title>AII Noticias-Gaming</title>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    
+    <style>
+        .col-md-7 {
+            padding-left:9%;
+            padding-top:5px;
+        }
+        .noticia {
+            margin-top:5%;
+            margin-bottom: 5%;
+        }
+        .noticia h2,h4 {
+            color:#00394d;
+        }
+
+        .col-md-4 {
+            margin-top:30px;
+        }
+    </style>
 </head>
+<body>
+<div class="container">
 
 <!-- Nav bar-->
 <nav class="navbar navbar-expand-lg navbar navbar-dark bg-dark">
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
               <li class="nav-item">
-                <a class="navbar-brand" href="#">AII Noticias-Gaming</a>
+                <a class="navbar-brand" href="/">AII Noticias-Gaming</a>
               </li>
+            </ul>
 
+            <ul class="navbar-nav">
             {% if not user.is_authenticated %}
               <li class="nav-item dropdown active">
                 <a class="nav-link dropdown-toggle"  href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -41,75 +64,74 @@
         </ul>
         </div>
     </nav>
+            {% endif %}
+<br/><br/>
 
 
-<!-- Menú derecha -->
-<p>Hemos seleccionado algunas noticias que puede que te interesen...</p>
+<div class="row">
 
-{% for noticia in recomendadas %}
-<li>
-    <ul>
-    <p>{{noticia.titulo}}</p>
-        <li>
+<div class="col-md-7">
+<!-- Contenido principal -->
+{% for noticia in noticias %}
+<div class="noticia">
+        <h2>{{noticia.titulo}}</h2>
+        <p>{{noticia.resumen}}</p>
+
+        <a href="{{noticia.link}}">Link</a> | Votar: 
+        {% if noticia.puntuada %}
+            <p>Ya has puntuado esta noticia</p>
+        {% elif not user.is_authenticated %}
+            <a href="/login">Identifícate para puntuar</a>
+        {% else %}
+            <a href="rate?puntuacion=1&noticia={{ noticia.id }}">★</a>
+            <a href="rate?puntuacion=2&noticia={{ noticia.id }}">★</a>
+            <a href="rate?puntuacion=3&noticia={{ noticia.id }}">★</a>
+            <a href="rate?puntuacion=4&noticia={{ noticia.id }}">★</a>
+            <a href="rate?puntuacion=5&noticia={{ noticia.id }}">★</a>
+        {% endif %}
+</div>        
+{% endfor %}
+
+
+    {% if pag > 0 %}
+    <a href="index?p={{ prevpag }}">Anterior</a>
+    {% endif %}
+    {% if nextpag is not None %}
+    <a href="index?p={{ nextpag }}">Siguiente</a>
+    {% endif %}
+
+</div>
+
+<div class="col-md-4">
+    <!-- Menú derecha -->
+    {% if user.is_authenticated %}
+    <p> <em>Hemos seleccionado algunas noticias que puede que te interesen...</em></p>
+
+    {% for noticia in recomendadas %}
+    <div class="noticia">
+        <h4>{{noticia.titulo}}</h4>
             <p>{{noticia.resumen}}</p>
-        </li>
-        <li>
-            <a href="{{noticia.link}}">Link</a>
-        </li>
-        <li>
+            <a href="{{noticia.link}}">Link</a> | Votar: 
+
             {% if noticia.puntuada %}
                 <p>Ya has puntuado esta noticia</p>
             {% elif not user.is_authenticated %}
                 <a href="/login"> Identifícate para puntuar </a>
             {% else %}
-                <a href="rate?puntuacion=1&noticia={{ noticia.id }}">1</a>
-                <a href="rate?puntuacion=2&noticia={{ noticia.id }}">2</a>
-                <a href="rate?puntuacion=3&noticia={{ noticia.id }}">3</a>
-                <a href="rate?puntuacion=4&noticia={{ noticia.id }}">4</a>
-                <a href="rate?puntuacion=5&noticia={{ noticia.id }}">5</a>
+                <a href="rate?puntuacion=1&noticia={{ noticia.id }}">★</a>
+                <a href="rate?puntuacion=2&noticia={{ noticia.id }}">★</a>
+                <a href="rate?puntuacion=3&noticia={{ noticia.id }}">★</a>
+                <a href="rate?puntuacion=4&noticia={{ noticia.id }}">★</a>
+                <a href="rate?puntuacion=5&noticia={{ noticia.id }}">★</a>
             {% endif %}
-        </li>
-    </ul>
-</li>
-{% endfor %}
-{% endif %}
-<br/>
-<br/>
-   <ul>
-        {% for noticia in noticias %}
-        <li>
-            <ul>
-            <p>{{noticia.titulo}}</p>
-                <li>
-                    <p>{{noticia.resumen}}</p>
-                </li>
-                <li>
-                    <a href="{{noticia.link}}">Link</a>
-                </li>
-                <li>
-                    {% if noticia.puntuada %}
-                        <p>Ya has puntuado esta noticia</p>
-                    {% elif not user.is_authenticated %}
-                        <a href="/login">Identifícate para puntuar</a>
-                    {% else %}
-                        <a href="rate?puntuacion=1&noticia={{ noticia.id }}">1</a>
-                        <a href="rate?puntuacion=2&noticia={{ noticia.id }}">2</a>
-                        <a href="rate?puntuacion=3&noticia={{ noticia.id }}">3</a>
-                        <a href="rate?puntuacion=4&noticia={{ noticia.id }}">4</a>
-                        <a href="rate?puntuacion=5&noticia={{ noticia.id }}">5</a>
-                    {% endif %}
-                </li>
-            </ul>
-        </li>
+    </div>
     {% endfor %}
-    </ul>
+    {% elif not user.is_authenticated%}
+    <em>Regístrate o identifícate para ver noticias recomendadas para ti</em>
+    {% endif %}
+</div>
+</div>
 
-
-
-{% if pag > 0 %}
-<a href="index?p={{ prevpag }}">Anterior</a>
-{% endif %}
-{% if nextpag is not None %}
-<a href="index?p={{ nextpag }}">Siguiente</a>
-{% endif %}
+</div>
+</body>
 </html>

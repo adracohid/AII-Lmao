@@ -92,14 +92,14 @@
 </div>        
 {% endfor %}
 
-
+    <ul class="pagination">
     {% if pag > 0 %}
-    <a href="index?p={{ prevpag }}">Anterior</a>
+    <li class="page-item"><a class="page-link" href="index?p={{ prevpag }}">Anterior</a></li>
     {% endif %}
     {% if nextpag is not None %}
-    <a href="index?p={{ nextpag }}">Siguiente</a>
+    <li class="page-item"><a class="page-link" href="index?p={{ nextpag }}">Siguiente</a></li>
     {% endif %}
-
+    </ul>
 </div>
 
 <div class="col-md-4">

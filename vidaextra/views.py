@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from vidaextra.forms import LoginForm, RegisterForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from vidaextra import scrapping,scrapping3djuegos
+from vidaextra import scrapping,scrapping3djuegos,scrappinglevelup,scrapinnintenderos
 from vidaextra.models import Noticia, Puntuacion
 from vidaextra.recomendation import predice_dos_noticias
 import random
@@ -163,33 +163,56 @@ def haz_scraping(request):
     for i in range(10):
         newuser = User.objects.create_user("test" + str(i), "test" + str(i)+"@gmail.com", "test" + str(i))
         newuser.save()
+    #scraping 3djuegos
+    try:
 
-    p=scrapping.procesar_pagina("https://www.vidaextra.com/")
-
-    l=p.find_all("div", class_=["abstract-content"])
-    for e in l:
-        titulo=scrapping.extraer_titulo(e)
-        resumen=scrapping.extraer_resumen(e)
-        link=scrapping.extraer_link(e)
-        fecha=scrapping.extraer_fecha(e)        
-        noticia=Noticia(titulo=titulo,resumen=resumen,link=link,fecha=fecha)
-        noticia.save()
+        cargar3djuegos(request)
+        status_pagina1="Pagina https://www.3djuegos.com cargada con exito"
+    except:
+        status_pagina1="Error al cargar la pagina https://www.3djuegos.com"
+    #scraping vidaextra
+    try:
+        
+        cargarvidaextra(request)
+        status_pagina2="Pagina https://www.vidaextra.com/ cargada con exito"
+    except:
+        status_pagina2="Error al cargar la pagina https://www.vidaextra.com/"
     
-    # Crea puntuaciones de prueba
-    for i in range(10):
-        usuario = User.objects.get(username="test"+str(i))
-        for j in range(5):
-            noticiaid = random.randint(1, len(Noticia.objects.all()) - 1)
-            try:
-                Puntuacion.objects.get(noticiaid = noticiaid, puntuacion = 5, userid = usuario.id)
-            except:
-                punt = Puntuacion(noticiaid = noticiaid, puntuacion = 5, userid = usuario.id)
-                punt.save()
+    #scraping levelup
+    try:
+        cargarlevelup(request)
+        status_pagina3="Pagina https://www.levelup.com/noticias cargada con exito"
 
-    return HttpResponse("Loaded")
+    except:
+        status_pagina3="Error al cargar la pagina https://www.levelup.com/noticias"
+
+    #Scraping nintenderos
+    try:
+        cargarnintenderos(request)
+        status_pagina4="Pagina https://www.nintenderos.com/ cargada con exito"
+    except:
+        status_pagina4="Error al cargar la pagina https://www.nintenderos.com/"
+    # Crea puntuaciones de prueba
+    try:
+
+        for i in range(10):
+            usuario = User.objects.get(username="test"+str(i))
+            for j in range(5):
+                noticiaid = random.randint(1, len(Noticia.objects.all()) - 1)
+                try:
+                    Puntuacion.objects.get(noticiaid = noticiaid, puntuacion = 5, userid = usuario.id)
+                except:
+                    punt = Puntuacion(noticiaid = noticiaid, puntuacion = 5, userid = usuario.id)
+                    punt.save()
+        error=" "
+    except:
+        #En el caso de que no se cargara ninguna pagina 
+        error="No se ha podido cargar ninguna noticia"
+    return render(request,'request.html',context={'status_pagina1':status_pagina1,'status_pagina2':status_pagina2,'status_pagina3':status_pagina3,'status_pagina4':status_pagina4,'error':error})
 
 def cargar3djuegos(request):
     paginas = scrapping3djuegos.seleccionar_paginas()
+        
     for pagina in paginas:
         p = scrapping3djuegos.procesar_pagina(pagina)
         l=p.find_all("div", class_=["nov_main_txt fftit"])
@@ -199,6 +222,38 @@ def cargar3djuegos(request):
             link=scrapping3djuegos.extraer_link(e)
             f=scrapping3djuegos.extraer_fecha(e)
             fecha = datetime.utcfromtimestamp(int(f)).strftime('%d/%m/%Y %H:%M:%S')
+            noticia=Noticia(titulo=titulo,resumen=resumen,link=link,fecha=fecha)
+            noticia.save()
+
+
+def cargarvidaextra(request):
+    p=scrapping.procesar_pagina("https://www.vidaextra.com/")
+    l=p.find_all("div", class_=["abstract-content"])
+    for e in l:
+        titulo=scrapping.extraer_titulo(e)
+        resumen=scrapping.extraer_resumen(e)
+        link=scrapping.extraer_link(e)
+        fecha=scrapping.extraer_fecha(e)+' '+scrapping.extraer_hora(e)      
         noticia=Noticia(titulo=titulo,resumen=resumen,link=link,fecha=fecha)
         noticia.save()
-    return HttpResponse("Loaded")
+
+def cargarlevelup(request):
+    l=scrappinglevelup.procesar_pagina()
+    for e in l:
+        titulo=scrappinglevelup.extraer_titulo(e)
+        resumen=scrappinglevelup.extraer_resumen(e)
+        link=scrappinglevelup.extraer_link(e)
+        fecha=scrappinglevelup.extraer_fecha(e)
+        noticia=Noticia(titulo=titulo,resumen=resumen,link=link,fecha=fecha)
+        noticia.save()
+
+def cargarnintenderos(request):
+    p=scrapinnintenderos.procesar_pagina('https://www.nintenderos.com/')
+    l=p.find_all("div", class_=["c-post-list__content"])
+    for e in l:
+        titulo=scrapinnintenderos.extraer_titulo(e)
+        resumen=scrapinnintenderos.extraer_resumen(e)
+        link=scrapinnintenderos.extraer_link(e)
+        fecha='Hace '+ scrapinnintenderos.extraer_fecha(e)
+        noticia=Noticia(titulo=titulo,resumen=resumen,link=link,fecha=fecha)
+        noticia.save()

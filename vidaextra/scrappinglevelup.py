@@ -29,13 +29,3 @@ def extraer_fecha(e):
     fecha = datetime.utcfromtimestamp(int(fecha)).strftime('%d/%m/%Y %H:%M:%S')
     return fecha
 
-
-l = procesar_pagina()
-
-for e in l:
-    titulo=extraer_titulo(e)
-    resumen=extraer_resumen(e)
-    link=extraer_link(e)
-    fecha=extraer_fecha(e)
-    print('Titulo: '+titulo+ '\n Resumen: '+resumen+ '\n Link: '+link+ '\n Fecha: '+ fecha)
-    

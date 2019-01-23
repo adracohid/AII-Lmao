@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 import urllib.request,re
-from .models import Noticia
+
 
 def procesar_pagina(d:str):
     fichero=urllib.request.urlopen(d)
@@ -27,19 +27,5 @@ def extraer_fecha(e):
 def extraer_hora(e):
     return re.split('T',e.footer.time['titile'])[1][0:8]
 
-def cargar():
-    p=procesar_pagina("https://www.vidaextra.com/")
 
-    l=p.find_all("div", class_=["abstract-content"])
-    for e in l:
-        titulo=extraer_titulo(e)
-        resumen=extraer_resumen(e)
-        link=extraer_link(e)
-        autor=extraer_autor(e)
-        fecha=extraer_fecha(e)
-        hora=extraer_hora(e)
-        print('Titulo: '+titulo +'\nResumen: '+resumen+ '\nLink: '+ link+ '\nAutor: '+ autor+ '\nFecha:' 
-            + fecha + '\nHora: '+hora)
-        noticia=Noticia(titulo=titulo,resumen=resumen,link=link,fecha=fecha)
-        noticia.save()
-    
+
